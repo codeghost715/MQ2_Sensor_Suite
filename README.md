@@ -1,1 +1,5 @@
-My friend Kevin did this in one night, he is AMAZING
+ESP32 upesy wroom 
+-DHT22
+-MQ2
+-MQ5 + MQ5
+-RTC
