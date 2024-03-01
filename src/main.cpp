@@ -5,6 +5,8 @@
 #include <WiFi.h>
 #include <DHT.h>
 #include <HTTPClient.h>
+#include <LoRa.h>
+
 
 //chase lora test branch
 
@@ -22,6 +24,14 @@ const char* GAS_ID = "AKfycbyEIXPYwkqpcjctBrpYTkOeh4Gt4ct_GiUkPCgjnf03zn1sp3EDmJ
 #define DHTPIN 4      // what pin the DHT is connected to
 #define DHTTYPE DHT22 // DHT 11 or DHT22
 
+// LoRa pins
+#define LORA_SCK 18
+#define LORA_MISO 19
+#define LORA_MOSI 23
+#define LORA_SS 5
+#define LORA_RST 14
+#define LORA_DIO0 2
+
 RTC_DS3231 rtc;
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -29,8 +39,9 @@ void setup() {
 
   ///////DO NOT MOVE THIS/////////////////////////////////////////////
   Serial.begin(9600); // Start serial communication at 9600 baud rate
-    ////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////
   
+//Initialize WeeFee
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -41,6 +52,14 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
+// Initialize LoRa
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+  if (!LoRa.begin(915E6)) {  // Adjust frequency to your region
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+
+//Initialize RTC
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
     while (1);
@@ -51,6 +70,8 @@ void setup() {
     // Following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
+
+//Initialize DHT22
 
   dht.begin();
 
@@ -63,6 +84,7 @@ unsigned long lastTime = 0;
 unsigned long interval = 60000; // interval at which to send data (60 seconds)
 
 void loop() {
+
     DateTime now = rtc.now();
 
     float humidity = dht.readHumidity();
@@ -71,6 +93,13 @@ void loop() {
     int mq2Value = analogRead(MQ2_PIN);
     int mq5Value1 = analogRead(MQ5_PIN1);
     int mq5Value2 = analogRead(MQ5_PIN2);
+
+  // Initialize LoRa
+    LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+    if (!LoRa.begin(915E6)) {  // Adjust frequency to your region
+      Serial.println("Starting LoRa failed!");
+      while (1);
+  }
 
     if (isnan(humidity) || isnan(temperatureC)) {
         Serial.println("Failed to read from DHT sensor!");
