@@ -6,6 +6,8 @@
 #include <DHT.h>
 #include <HTTPClient.h>
 
+//lora test branch
+
 //KEYS AND CONSTANTS//
 const char* ssid = "Farm House";
 const char* password = "surelogon";
