@@ -13,7 +13,6 @@
 const char* ssid = "Farm House";
 const char* password = "surelogon";
 const char* GAS_ID = "AKfycbyEIXPYwkqpcjctBrpYTkOeh4Gt4ct_GiUkPCgjnf03zn1sp3EDmJIQUNByTlH0mfdV";  // GAS Deployment ID
-int counter = 0;
 
 #define MQ2_PIN 33    // Adjust for your ESP32's pin numbering for MQ2
 #define MQ5_PIN1 35   // Adjust for your ESP32's pin numbering for the first MQ5
