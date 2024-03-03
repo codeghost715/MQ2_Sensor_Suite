@@ -7,12 +7,12 @@
 #include <HTTPClient.h>
 
 //KEYS AND CONSTANTS//
-const char* ssid = "Farm House";
-const char* password = "surelogon";
+const char* ssid = "Lord Bowies Lair";
+const char* password = "zaq1@wsX";
 const char* GAS_ID = "AKfycbyEIXPYwkqpcjctBrpYTkOeh4Gt4ct_GiUkPCgjnf03zn1sp3EDmJIQUNByTlH0mfdV";  // GAS Deployment ID
 
-#define MQ2_PIN 33    // Adjust for your ESP32's pin numbering for MQ2
-#define MQ5_PIN1 35   // Adjust for your ESP32's pin numbering for the first MQ5
+#define MQ2_PIN 32    // Adjust for your ESP32's pin numbering for MQ2
+#define MQ5_PIN1 33   // Adjust for your ESP32's pin numbering for the first MQ5
 #define MQ5_PIN2 32   // Adjust for your ESP32's pin numbering for the second MQ5
 #define DHTPIN 4      // what pin the DHT is connected to
 #define DHTTYPE DHT22 // DHT 11 or DHT22
@@ -70,7 +70,7 @@ void loop() {
     if (isnan(humidity) || isnan(temperatureC)) {
         Serial.println("Failed to read from DHT sensor!");
     } 
-    
+
     else {
         // Serial prints every loop iteration (every second)
         Serial.print(now.timestamp(DateTime::TIMESTAMP_FULL));
