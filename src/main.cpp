@@ -27,7 +27,7 @@ void setup() {
   Serial.begin(9600); // Start serial communication at 9600 baud rate
   ////////////////////////////////////////////////////////////////////
 
-  // LoraSerial.begin(9600, SERIAL_8N1, 16, 17); // RX, TX
+  LoraSerial.begin(115200, SERIAL_8N1, 0, 2); // RX, TX
 
   WiFi.begin(ssid, password);
 
@@ -56,21 +56,21 @@ void setup() {
   pinMode(MQ5_PIN1, INPUT); // Set first MQ5 pin as an input
   pinMode(MQ5_PIN2, INPUT); // Set second MQ5 pin as an input
 
-  // Initialize LoRa module with AT commands
-  // LoraSerial.println("AT+ADDRESS=1"); // Example: Set device address
-  // delay(100); // Short delay to allow for module response
-  // Add additional AT commands as needed
+  //Initialize LoRa module with AT commands
+  LoraSerial.println("AT+ADDRESS=1"); // Example: Set device address
+  delay(100); // Short delay to allow for module response
+  //Add additional AT commands as needed
 
 }
 
 unsigned long lastTime = 0;
 unsigned long interval = 60000; // interval at which to send data (60 seconds)
 
-// void sendLoRaMessage(float temperatureC, float humidity, int mq2Value) {
-//     String loraMessage = "AT+SEND=0,10,"; // Adjust according to your needs
-//     loraMessage += String(temperatureC) + "," + String(humidity) + "," + String(mq2Value); // Example data
-//     LoraSerial.println(loraMessage);
-// }
+void sendLoRaMessage(float temperatureC, float humidity, int mq2Value) {
+    String loraMessage = "AT+SEND=0,10,"; // Adjust according to your needs
+    loraMessage += String(temperatureC) + "," + String(humidity) + "," + String(mq2Value); // Example data
+    LoraSerial.println(loraMessage);
+}
 
 void loop() {
     // UNCOMMENT AFTER RTC IS RECEIVED
@@ -83,10 +83,10 @@ void loop() {
     int mq5Value1 = analogRead(MQ5_PIN1);
     int mq5Value2 = 0; //FAKE READING analogRead(MQ5_PIN2);
 
-  // if (LoraSerial.available()) {
-  //       String response = LoraSerial.readString();
-  //       Serial.println(response);
-  //   }
+  if (LoraSerial.available()) {
+        String response = LoraSerial.readString();
+        Serial.println(response);
+    }
 
     if (isnan(humidity) || isnan(temperatureC)) {
         Serial.println("Failed to read from DHT sensor!");
@@ -142,7 +142,7 @@ void loop() {
 
             http.end(); // Free resources
 
-            // sendLoRaMessage(temperatureC,humidity,mq2Value);
+            sendLoRaMessage(temperatureC,humidity,mq2Value);
 
         }
     }
