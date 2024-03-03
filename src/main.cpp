@@ -5,11 +5,12 @@
 #include <WiFi.h>
 #include <DHT.h>
 #include <HTTPClient.h>
+#include <HardwareSerial.h> //lora rylr998
 
 //KEYS AND CONSTANTS//
 const char* ssid = "Lord Bowies Lair";
 const char* password = "zaq1@wsX";
-const char* GAS_ID = "AKfycbyEIXPYwkqpcjctBrpYTkOeh4Gt4ct_GiUkPCgjnf03zn1sp3EDmJIQUNByTlH0mfdV";  // GAS Deployment ID
+const char* GAS_ID = "AKfycbwJ6zECnfrJDdarI_UG1DbQ0Ba-He7L0-UfeAGF_fMf-tHmZ9RE3MbFDjpxrkRY0Ako";  // GAS Deployment ID
 
 #define MQ2_PIN 32    // Adjust for your ESP32's pin numbering for MQ2
 #define MQ5_PIN1 33   // Adjust for your ESP32's pin numbering for the first MQ5
@@ -19,12 +20,14 @@ const char* GAS_ID = "AKfycbyEIXPYwkqpcjctBrpYTkOeh4Gt4ct_GiUkPCgjnf03zn1sp3EDmJ
 
 RTC_DS3231 rtc;
 DHT dht(DHTPIN, DHTTYPE);
+HardwareSerial LoraSerial(1); // Using the second hardware serial on ESP32
 
 void setup() {
-
   ///////DO NOT MOVE THIS/////////////////////////////////////////////
   Serial.begin(9600); // Start serial communication at 9600 baud rate
   ////////////////////////////////////////////////////////////////////
+
+  // LoraSerial.begin(9600, SERIAL_8N1, 16, 17); // RX, TX
 
   WiFi.begin(ssid, password);
 
@@ -36,36 +39,54 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-  if (!rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    while (1);
-  }
+  // if (!rtc.begin()) {
+  //   Serial.println("Couldn't find RTC");
+  //   while (1);
+  // }
 
-  if (rtc.lostPower()) {
-    Serial.println("RTC lost power, let's set the time!");
-    // Following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
+  // if (rtc.lostPower()) {
+  //   Serial.println("RTC lost power, let's set the time!");
+  //   // Following line sets the RTC to the date & time this sketch was compiled
+  //   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // }
 
-  dht.begin();
+  // dht.begin();
 
   pinMode(MQ2_PIN, INPUT); // Set MQ2 pin as an input
   pinMode(MQ5_PIN1, INPUT); // Set first MQ5 pin as an input
   pinMode(MQ5_PIN2, INPUT); // Set second MQ5 pin as an input
+
+  // Initialize LoRa module with AT commands
+  // LoraSerial.println("AT+ADDRESS=1"); // Example: Set device address
+  // delay(100); // Short delay to allow for module response
+  // Add additional AT commands as needed
+
 }
 
 unsigned long lastTime = 0;
 unsigned long interval = 60000; // interval at which to send data (60 seconds)
 
-void loop() {
-    DateTime now = rtc.now();
+// void sendLoRaMessage(float temperatureC, float humidity, int mq2Value) {
+//     String loraMessage = "AT+SEND=0,10,"; // Adjust according to your needs
+//     loraMessage += String(temperatureC) + "," + String(humidity) + "," + String(mq2Value); // Example data
+//     LoraSerial.println(loraMessage);
+// }
 
-    float humidity = dht.readHumidity();
-    float temperatureC = dht.readTemperature();
-    float temperatureF = dht.readTemperature(true);
+void loop() {
+    // UNCOMMENT AFTER RTC IS RECEIVED
+    // DateTime now = rtc.now();
+
+    float humidity = 50.0; //FAKE READING dht.readHumidity();
+    float temperatureC = 25.0; //FAKE READING dht.readTemperature();
+    float temperatureF = 70.0; //FAKE READING dht.readTemperature(true);
     int mq2Value = analogRead(MQ2_PIN);
     int mq5Value1 = analogRead(MQ5_PIN1);
-    int mq5Value2 = analogRead(MQ5_PIN2);
+    int mq5Value2 = 0; //FAKE READING analogRead(MQ5_PIN2);
+
+  // if (LoraSerial.available()) {
+  //       String response = LoraSerial.readString();
+  //       Serial.println(response);
+  //   }
 
     if (isnan(humidity) || isnan(temperatureC)) {
         Serial.println("Failed to read from DHT sensor!");
@@ -73,7 +94,8 @@ void loop() {
 
     else {
         // Serial prints every loop iteration (every second)
-        Serial.print(now.timestamp(DateTime::TIMESTAMP_FULL));
+        //UNCOMMENT AFTER RTC IS BACK Serial.print(now.timestamp(DateTime::TIMESTAMP_FULL));
+        Serial.print(millis()); //COMMENT OUT AFTER RTC IS BACK
         Serial.print(" | Humidity: ");
         Serial.print(humidity);
         Serial.print("% | Temp: ");
@@ -119,6 +141,9 @@ void loop() {
             }
 
             http.end(); // Free resources
+
+            // sendLoRaMessage(temperatureC,humidity,mq2Value);
+
         }
     }
 
